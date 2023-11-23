@@ -13,6 +13,9 @@ Possible Future Data:
 - Player Stats
 - Team/Game Stats
 
+Currently doing this in free time every now and then, if you want me to continue (why does this sound like a threat) send me what you want in the description: venmo @Sahir-B 🍟 (last 4 phone digits 4836) 🫶🏽
+
+
 If you have a request, check the previous README version for instructions on how to reach out 😆
 
 If we want the game total & q2 difference for 2022 Lakers road losses (sorted by game total):
