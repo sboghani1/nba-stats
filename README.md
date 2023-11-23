@@ -1,4 +1,3 @@
-# nba-stats
 Hoping to make NBA data more accessible for other fanatics! 🤗
 
 There are two types of APIs (NBA Data, Parse basketball-reference)
