@@ -1,6 +1,4 @@
 # nba-stats
-NBA data and Javascript APIs to access stats. Also the util APIs that were used to build the stats files.
-
 Hoping to make NBA data more accessible for other fanatics! 🤗
 
 There are two types of APIs (NBA Data, Parse basketball-reference)
