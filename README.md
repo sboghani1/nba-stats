@@ -5,13 +5,13 @@ There are two types of APIs (NBA Data, Parse basketball-reference)
 # i. NBA Data 🏀 🧬
 
 Current Data:
-- Box Scores
-  - 2019-2023 (5 seasons)
+- Box Scores (points per quarter)
+  - 2006-2023 (17 seasons)
 
 Possible Future Data:
 - More seasons
+- Advanced team/game stats (possessions, fouls, fg attempts, etc.)
 - Player Stats
-- Team/Game Stats
 
 If you have a request, check the previous README version for instructions on how to reach out 😆
 
