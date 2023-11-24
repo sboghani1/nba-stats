@@ -20,76 +20,76 @@ const num_additional_days = 4;
 const backfillSeasons = [
     {
         start: {
-            year: 2017,
-            month: 10,
-            day: 17
+            year: 2011,
+            month: 12,
+            day: 25
         },
         end: {
-            year: 2018,
+            year: 2012,
             month: 4,
-            day: 11
+            day: 26
         }
     },
     {
         start: {
-            year: 2016,
+            year: 2010,
             month: 10,
-            day: 25
+            day: 26
         },
         end: {
-            year: 2017,
+            year: 2011,
             month: 4,
-            day: 12
+            day: 13
         }
     },
-    // {
-    //     start: {
-    //         year: 2018,
-    //         month: 10,
-    //         day: 16
-    //     },
-    //     end: {
-    //         year: 2019,
-    //         month: 4,
-    //         day: 10
-    //     }
-    // },
-    // {
-    //     start: {
-    //         year: 2018,
-    //         month: 10,
-    //         day: 16
-    //     },
-    //     end: {
-    //         year: 2019,
-    //         month: 4,
-    //         day: 10
-    //     }
-    // },
-    // {
-    //     start: {
-    //         year: 2018,
-    //         month: 10,
-    //         day: 16
-    //     },
-    //     end: {
-    //         year: 2019,
-    //         month: 4,
-    //         day: 10
-    //     }
-    // },
-    // {
-    //     start: {
-    //         year: 2018,
-    //         month: 10,
-    //         day: 16
-    //     },
-    //     end: {
-    //         year: 2019,
-    //         month: 4,
-    //         day: 10
-    //     }
-    // },
+    {
+        start: {
+            year: 2009,
+            month: 10,
+            day: 27
+        },
+        end: {
+            year: 2010,
+            month: 4,
+            day: 14
+        }
+    },
+    {
+        start: {
+            year: 2008,
+            month: 10,
+            day: 28
+        },
+        end: {
+            year: 2009,
+            month: 4,
+            day: 16
+        }
+    },
+    {
+        start: {
+            year: 2007,
+            month: 10,
+            day: 30
+        },
+        end: {
+            year: 2008,
+            month: 4,
+            day: 16
+        }
+    },
+    {
+        start: {
+            year: 2006,
+            month: 10,
+            day: 31
+        },
+        end: {
+            year: 2007,
+            month: 4,
+            day: 18
+        }
+    },
     // {
     //     start: {
     //         year: 2018,
@@ -146,7 +146,7 @@ console.log(sortedLakers);
 
 
 
-const local_file_path_tempalte = "/Users/boghani/basketball-reference-js-box-score/data/box_scores/";
+const local_file_path_tempalte = "/Users/boghani/ns2/data/box_scores/";
 const local_file_path = "/Users/boghani/basketball-reference-js-box-score/data/box_scores/2019_2020.txt";
 
 const box_score_transformation = (boxScore) => {
