@@ -9,8 +9,8 @@ const last_season = {
     endYear: 2023
 };
 const first_season = {
-    startYear: 2018,
-    endYear: 2019
+    startYear: 2009,
+    endYear: 2010
 };
 
 function isValidRequest(nba_season) {
@@ -46,6 +46,48 @@ function httpGetWithRetry(url, currentAttempt, maxAttempts) {
 // not configuring maxAttempts to save from hella 429 rate limit exceeded, but it works :) proof: iGot blocked
 function httpGet(url, maxAttempts = 1) {
     return httpGetWithRetry(url, 1, maxAttempts);
+}
+
+function getPaddedNumber(number) {
+    if (number < 10) {
+        return `0${number}`;
+    }
+
+    return number;
+}
+
+function getTeamTLA(team) {
+    if (team.includes('Atlanta')) {
+        return 'ATL';
+    }
+    if (team.includes('Boston')) {
+        return 'BOS';
+    }
+
+    if (team.includes('Golden State')) {
+        return 'GSW';
+    }
+}
+
+function getAdvancedStats(home_team, game_date) {
+    const date = game_date.split('-');
+
+    const dateString = `${date[0]}${getPaddedNumber(date[1])}${getPaddedNumber(date[2])}`;
+    const homeTLA = getTeamTLA(home_team);
+
+    return new Promise((resolve, reject) => {
+        httpGet(`https://www.basketball-reference.com/boxscores/${dateString}0${homeTLA}.html`)
+        .then(response => {
+            // use cheerio to parse HTML
+            const $ = cheerio.load(response.data);
+
+            const paceRegex = /pace\" \>([\.\d+]+)?/; // matches one or more digits, optionally followed by a dot and one or more digits
+            const paceMatch = response.data.match(paceRegex)[0];
+            const pace = parseFloat(paceMatch.substring(paceMatch.indexOf('>') + 1));
+
+            resolve(pace);
+        });
+    });
 }
 
 function getBoxScoresForDate(date) {
@@ -115,6 +157,7 @@ function getCompactBoxScore(box_score) {
         roadTeam: box_score.roadTeam,
         homeTeam: box_score.homeTeam,
         numExtraPeriods: box_score.numExtraPeriods,
+        numPossessions: box_score.numPossessions,
         periodBreakdown: box_score.periodBreakdown
     };
 }
@@ -141,6 +184,17 @@ function readBoxScores(file_path) {
     return boxScores;
 }
 
+function writeToFile(file_path, box_scores) {
+    fs.writeFileSync(file_path, getFileString(box_scores));
+}
+
+function updateBoxScore(file_path, index, box_score_transformation) {
+    const updatedBoxScores = readBoxScores(file_path);
+    updatedBoxScores[index] = box_score_transformation(updatedBoxScores[index]);
+
+    writeToFile(file_path, updatedBoxScores);
+}
+
 function sortFileByGameDate(file_path) {
     const sortedBoxScores = readBoxScores(file_path);
 
@@ -148,7 +202,7 @@ function sortFileByGameDate(file_path) {
         return new Date(a.gameDate).getTime() - new Date(b.gameDate).getTime();
     });
 
-    fs.writeFileSync(file_path, getFileString(sortedBoxScores));
+    writeToFile(file_path, sortedBoxScores);
 }
 
 
@@ -280,5 +334,7 @@ bref.appendCompactBoxScores = appendCompactBoxScores;
 bref.getSeasonScores = getSeasonScores;
 bref.getSeasonScoresSimple = getSeasonScoresSimple;
 bref.sortFileByGameDate = sortFileByGameDate;
+bref.updateBoxScore = updateBoxScore;
+bref.getAdvancedStats = getAdvancedStats;
 
 module.exports = bref // npm link, npm link @sahirb/basketball-reference

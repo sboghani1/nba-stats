@@ -194,7 +194,36 @@ function backfill(index) {
     });
 }
 
-backfill(0);
+const season = {
+    seasonStart: 2009,
+    seasonEnd: 2010
+}
+
+const seasonStart = 2022;
+const boxScores = bref.getSeasonScores(seasonStart);
+const limit = 0; // boxScores.length
+
+function work(index) {
+    const boxScore = boxScores[index];
+    const filePath = `/Users/boghani/nba-stats/data/box_scores/${seasonStart}_${seasonStart+1}.txt`;
+
+    bref.getAdvancedStats(boxScore.homeTeam, boxScore.gameDate)
+    .then(pace => {
+        console.log('got pace ' + pace);
+
+        bref.updateBoxScore(filePath, index, (boxScoreLine) => {
+            boxScoreLine.numPossessions = pace;
+            return boxScoreLine;
+        })
+
+        if (index < limit) {
+            console.log('going to work again after 20s')
+            setTimeout(() => {
+                work(index+1);
+            }, 20000);
+        }
+    });
+}
 
 // bref.getBoxScoresForDates(nba_season_end, num_additional_days, '', null).then(boxScores => {
 //     boxScores.sort((a, b) => {
