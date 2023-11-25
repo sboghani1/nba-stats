@@ -20,30 +20,6 @@ const num_additional_days = 4;
 const backfillSeasons = [
     {
         start: {
-            year: 2011,
-            month: 12,
-            day: 25
-        },
-        end: {
-            year: 2012,
-            month: 4,
-            day: 26
-        }
-    },
-    {
-        start: {
-            year: 2010,
-            month: 10,
-            day: 26
-        },
-        end: {
-            year: 2011,
-            month: 4,
-            day: 13
-        }
-    },
-    {
-        start: {
             year: 2009,
             month: 10,
             day: 27

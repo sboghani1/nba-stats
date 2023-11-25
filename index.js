@@ -9,8 +9,8 @@ const last_season = {
     endYear: 2023
 };
 const first_season = {
-    startYear: 2009,
-    endYear: 2010
+    startYear: 2006,
+    endYear: 2007
 };
 
 function isValidRequest(nba_season) {
