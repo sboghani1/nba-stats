@@ -63,9 +63,89 @@ function getTeamTLA(team) {
     if (team.includes('Boston')) {
         return 'BOS';
     }
-
+    if (team.includes('Brooklyn')) {
+        return 'BRK';
+    }
+    if (team.includes('Charlotte')) {
+        return 'CHO';
+    }
+    if (team.includes('Chicago')) {
+        return 'CHI';
+    }
+    if (team.includes('Cleveland')) {
+        return 'CLE';
+    }
+    if (team.includes('Dallas')) {
+        return 'DAL';
+    }
+    if (team.includes('Denver')) {
+        return 'DEN';
+    }
+    if (team.includes('Detroit')) {
+        return 'DET';
+    }
     if (team.includes('Golden State')) {
         return 'GSW';
+    }
+    if (team.includes('Houston')) {
+        return 'HOU';
+    }
+    if (team.includes('Indiana')) {
+        return 'IND';
+    }
+    if (team.includes('LA Clippers')) {
+        return 'LAC';
+    }
+    if (team.includes('LA Lakers')) {
+        return 'LAL';
+    }
+    if (team.includes('Memphis')) {
+        return 'MEM';
+    }
+    if (team.includes('Miami')) {
+        return 'MIA';
+    }
+    if (team.includes('Milwaukee')) {
+        return 'MIL';
+    }
+    if (team.includes('Minnesota')) {
+        return 'MIN';
+    }
+    if (team.includes('New Orleans')) {
+        return 'NOP';
+    }
+    if (team.includes('New York')) {
+        return 'NYK';
+    }
+    if (team.includes('Oklahoma City')) {
+        return 'OKC';
+    }
+    if (team.includes('Orlando')) {
+        return 'ORL';
+    }
+    if (team.includes('Philadelphia')) {
+        return 'PHI';
+    }
+    if (team.includes('Phoenix')) {
+        return 'PHO';
+    }
+    if (team.includes('Portland')) {
+        return 'POR';
+    }
+    if (team.includes('Sacramento')) {
+        return 'SAC';
+    }
+    if (team.includes('San Antonio')) {
+        return 'SAS';
+    }
+    if (team.includes('Toronto')) {
+        return 'TOR';
+    }
+    if (team.includes('Utah')) {
+        return 'UTA';
+    }
+    if (team.includes('Washington')) {
+        return 'WAS';
     }
 }
 

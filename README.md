@@ -1,19 +1,28 @@
-Hoping to make NBA data more accessible for other fanatics! 🤗
+Making NBA data more accessible for fellow fanatics! 🏀 🤗
 
-There are two types of APIs (NBA Data, Parse basketball-reference)
+# i. NBA Data 🧬 🧱
+Local copy of data with functions to access - with these building blocks the possibilities are endless! 😬
 
-# i. NBA Data 🏀 🧬
+🚦 No more getting rate limited by web apis
+
+💰 Evaluate mid-game scenarios based on "similar" teams in past games/seasons as defined by you
+
+🎶 Easily combine stats across seasons to find true historical outliers (both 🏆 && 🤮)
 
 Current Data:
-- Box Scores (points per quarter)
-  - 2006-2023 (17 seasons)
+- Box Scores
+  - Points per quarter (for season off/def point average & ranking)
+    - 2006-2023 (17 seasons)
+
+  - Possessions per game (for season off/def efficiency rating & ranking)
+    - 2022-2023
 
 Possible Future Data:
 - More seasons
-- Advanced team/game stats (possessions, fouls, fg attempts, etc.)
+- Advanced team/game stats (fouls, fg/ft/3fg attempts, etc.)
 - Player Stats
 
-If you have a request, check the previous README version for instructions on how to reach out 😆
+If you have a request, check the previous README version for instructions on how to get priority 😆
 
 If we want the game total & q2 difference for 2022 Lakers road losses (sorted by game total):
 ```javascript

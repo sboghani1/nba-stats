@@ -104,7 +104,7 @@ const backfillSeasons = [
     // }
 ]
 
-const sortedLakers = bref.getSeasonScores(2018)
+const sortedLakers = bref.getSeasonScores(2022)
 .filter(boxScore => {
     return boxScore.roadTeam === 'LA Lakers' && boxScore.winningTeam !== 'LA Lakers';
 }).sort((boxScoreA, boxScoreB) => {
@@ -114,6 +114,7 @@ const sortedLakers = bref.getSeasonScores(2018)
         date: boxScore.gameDate,
         total: boxScore.roadTeamTotal,
         diff: boxScore.roadTeamTotal - boxScore.homeTeamTotal,
+        numPossessions: boxScore.numPossessions,
         q2Diff: boxScore.periodBreakdown[1].roadTotal - boxScore.periodBreakdown[1].homeTotal,
     }
 });
@@ -177,29 +178,56 @@ const season = {
 
 const seasonStart = 2022;
 const boxScores = bref.getSeasonScores(seasonStart);
-const limit = 0; // boxScores.length
+const limit = boxScores.length;
 
 function work(index) {
+    if (index >= limit) {
+        return;
+    }
+
     const boxScore = boxScores[index];
-    const filePath = `/Users/boghani/nba-stats/data/box_scores/${seasonStart}_${seasonStart+1}.txt`;
+    const filePath = `./data/box_scores/${seasonStart}_${seasonStart+1}.txt`;
 
-    bref.getAdvancedStats(boxScore.homeTeam, boxScore.gameDate)
-    .then(pace => {
-        console.log('got pace ' + pace);
+    if (!boxScore.numPossessions) {
+        bref.getAdvancedStats(boxScore.homeTeam, boxScore.gameDate)
+        .then(pace => {
+            console.log('got pace ' + pace);
 
-        bref.updateBoxScore(filePath, index, (boxScoreLine) => {
-            boxScoreLine.numPossessions = pace;
-            return boxScoreLine;
-        })
+            bref.updateBoxScore(filePath, index, (boxScoreLine) => {
+                boxScoreLine.numPossessions = pace;
+                return boxScoreLine;
+            })
 
-        if (index < limit) {
-            console.log('going to work again after 20s')
+            const progress = Math.round(index / limit * 1000);
+
+            console.log('going to work again after 3s (' + (limit - index) + ' remaining aka ' + (3*(limit-index)/60) + ' minutos)');
             setTimeout(() => {
                 work(index+1);
-            }, 20000);
-        }
-    });
+            }, 3000);
+        });
+    } else {
+        console.log('skiping ' + index + ' already have ' + boxScore.numPossessions);
+        work(index+1);
+    }
 }
+
+// work(0);
+
+// const teamNames = new Map();
+// const sortedTeamNames = [];
+
+// boxScores.forEach(boxScore => {
+//     if (!teamNames.has(boxScore.homeTeam)) {
+//         teamNames.set(boxScore.homeTeam, true);
+//     }
+// });
+// teamNames.forEach((value, key) => {
+//     sortedTeamNames.push(key);
+// });
+// sortedTeamNames.sort();
+// sortedTeamNames.forEach(teamName => {
+//     console.log(teamName);
+// });
 
 // bref.getBoxScoresForDates(nba_season_end, num_additional_days, '', null).then(boxScores => {
 //     boxScores.sort((a, b) => {
