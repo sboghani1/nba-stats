@@ -1,0 +1,30 @@
+{"teamName":"Atlanta","teamTLA":"ATL","offensiveEfficiency":106.9,"defensiveEfficiency":108.9,"pace":91.1}
+{"teamName":"Boston","teamTLA":"BOS","offensiveEfficiency":110.2,"defensiveEfficiency":98.9,"pace":90.9}
+{"teamName":"Charlotte","teamTLA":"CHA","offensiveEfficiency":104.6,"defensiveEfficiency":109.4,"pace":91.8}
+{"teamName":"Chicago","teamTLA":"CHI","offensiveEfficiency":103.9,"defensiveEfficiency":107.2,"pace":93}
+{"teamName":"Cleveland","teamTLA":"CLE","offensiveEfficiency":106,"defensiveEfficiency":106.4,"pace":90.2}
+{"teamName":"Dallas","teamTLA":"DAL","offensiveEfficiency":111.1,"defensiveEfficiency":106.1,"pace":90.2}
+{"teamName":"Denver","teamTLA":"DEN","offensiveEfficiency":110,"defensiveEfficiency":106.3,"pace":99.7}
+{"teamName":"Detroit","teamTLA":"DET","offensiveEfficiency":111.4,"defensiveEfficiency":102.9,"pace":87.3}
+{"teamName":"Golden State","teamTLA":"GSW","offensiveEfficiency":111.8,"defensiveEfficiency":109.5,"pace":98.8}
+{"teamName":"Houston","teamTLA":"HOU","offensiveEfficiency":106.8,"defensiveEfficiency":101.6,"pace":90.4}
+{"teamName":"Indiana","teamTLA":"IND","offensiveEfficiency":106,"defensiveEfficiency":107.5,"pace":97.7}
+{"teamName":"LA Clippers","teamTLA":"LAC","offensiveEfficiency":101.2,"defensiveEfficiency":109.1,"pace":92.1}
+{"teamName":"LA Lakers","teamTLA":"LAL","offensiveEfficiency":113,"defensiveEfficiency":105.5,"pace":95.6}
+{"teamName":"Memphis","teamTLA":"MEM","offensiveEfficiency":105,"defensiveEfficiency":111.4,"pace":95.3}
+{"teamName":"Miami","teamTLA":"MIA","offensiveEfficiency":100.5,"defensiveEfficiency":110,"pace":90.2}
+{"teamName":"Milwaukee","teamTLA":"MIL","offensiveEfficiency":105.3,"defensiveEfficiency":112.8,"pace":91.3}
+{"teamName":"Minnesota","teamTLA":"MIN","offensiveEfficiency":103.8,"defensiveEfficiency":111.2,"pace":91.9}
+{"teamName":"New Orleans","teamTLA":"NOH","offensiveEfficiency":111.5,"defensiveEfficiency":105.7,"pace":89.9}
+{"teamName":"New Jersey","teamTLA":"NJN","offensiveEfficiency":104,"defensiveEfficiency":109.4,"pace":91.5}
+{"teamName":"New York","teamTLA":"NYK","offensiveEfficiency":104.7,"defensiveEfficiency":111.9,"pace":91.6}
+{"teamName":"Orlando","teamTLA":"ORL","offensiveEfficiency":111.3,"defensiveEfficiency":105.5,"pace":93.4}
+{"teamName":"Philadelphia","teamTLA":"PHI","offensiveEfficiency":106.4,"defensiveEfficiency":106,"pace":90.4}
+{"teamName":"Phoenix","teamTLA":"PHO","offensiveEfficiency":113.3,"defensiveEfficiency":108.1,"pace":96.7}
+{"teamName":"Portland","teamTLA":"POR","offensiveEfficiency":107.3,"defensiveEfficiency":108.4,"pace":87.9}
+{"teamName":"Sacramento","teamTLA":"SAC","offensiveEfficiency":107.5,"defensiveEfficiency":109.9,"pace":94.7}
+{"teamName":"San Antonio","teamTLA":"SAS","offensiveEfficiency":107.2,"defensiveEfficiency":101.8,"pace":88.8}
+{"teamName":"Seattle","teamTLA":"SEA","offensiveEfficiency":100.5,"defensiveEfficiency":109.5,"pace":96.3}
+{"teamName":"Toronto","teamTLA":"TOR","offensiveEfficiency":110.2,"defensiveEfficiency":107,"pace":90.2}
+{"teamName":"Utah","teamTLA":"UTA","offensiveEfficiency":113.8,"defensiveEfficiency":106.5,"pace":93.2}
+{"teamName":"Washington","teamTLA":"WAS","offensiveEfficiency":109.2,"defensiveEfficiency":109.6,"pace":89.5}

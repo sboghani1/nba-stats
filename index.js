@@ -28,7 +28,11 @@ function httpGetWithRetry(url, currentAttempt, maxAttempts) {
             resolve(response);
         })
         .catch(error => {
-            console.log(`Error fetching url ${url}: ${error.code} ${error.response.statusText}`)
+            if (error.response) {
+                console.log(`Error fetching url ${url}: ${error.code} ${error.response.statusText}`)
+            } else {
+                console.log(`Error fetching url ${url}: ${error.message.substring(0, 200)}`);
+            }
 
             if (currentAttempt < maxAttempts) {
                 console.log(`Looks like attempt ${currentAttempt} failed, will retry since it's not past the max attempts ${maxAttempts}`);
@@ -56,7 +60,7 @@ function getPaddedNumber(number) {
     return number;
 }
 
-function getTeamTLA(team) {
+function getTeamTLA(team, game_year, game_month) {
     if (team.includes('Atlanta')) {
         return 'ATL';
     }
@@ -67,7 +71,14 @@ function getTeamTLA(team) {
         return 'BRK';
     }
     if (team.includes('Charlotte')) {
-        return 'CHO';
+        // hornets (2014-2015 onwards)
+        if (game_year >= 2014) {
+            if (game_year > 2014 || game_month > 7) {
+                return 'CHO';
+            }
+        }
+
+        return 'CHA'; // bobcats
     }
     if (team.includes('Chicago')) {
         return 'CHI';
@@ -112,7 +123,28 @@ function getTeamTLA(team) {
         return 'MIN';
     }
     if (team.includes('New Orleans')) {
-        return 'NOP';
+        console.log("new orleans " + game_year + " " + game_month);
+
+         // pelicans (2013-2014 - present)
+        if (game_year >= 2013) {
+            if (game_year > 2013 || game_month > 7) {
+                return 'NOP';
+            }
+        }
+
+        // okc hornets
+        if (game_month > 7 && (game_year == 2005 || game_year == 2006)) {
+            return 'NOK';
+        }
+        if (game_month < 7 && (game_year == 2006 || game_year == 2007)) {
+            return 'NOK';
+        }
+
+        // hornets
+        return 'NOH';
+    }
+    if (team.includes('New Jersey')) {
+        return 'NJN';
     }
     if (team.includes('New York')) {
         return 'NYK';
@@ -138,6 +170,9 @@ function getTeamTLA(team) {
     if (team.includes('San Antonio')) {
         return 'SAS';
     }
+    if (team.includes('Seattle')) {
+        return 'SEA';
+    }
     if (team.includes('Toronto')) {
         return 'TOR';
     }
@@ -149,28 +184,54 @@ function getTeamTLA(team) {
     }
 }
 
-function getAdvancedStats(home_team, game_date) {
+function fetchSeasonSummary(team_tla, season_start_year) {
+
+    function parseWithRegex(input, regex) {
+        const match = input.match(regex)[0];
+        return parseFloat(match.substring(match.indexOf('>') + 1));
+    }
+
+    return new Promise((resolve, reject) => {
+        httpGet(`https://www.basketball-reference.com/teams/${team_tla}/${season_start_year+1}.html`)
+        .then(response => {
+            const offRating = parseWithRegex(response.data, /off_rtg\" \>([\.\d+]+)?/);
+            const defRating = parseWithRegex(response.data, /def_rtg\" \>([\.\d+]+)?/);
+            const pace = parseWithRegex(response.data, /pace\" \>([\.\d+]+)?/);
+
+            resolve({
+                offRating: offRating,
+                defRating: defRating,
+                pace: pace
+            });
+        })
+        .catch(error => {
+            reject(error);
+        });
+    });
+}
+
+function fetchAdvancedStats(home_team, game_date) {
     const date = game_date.split('-');
 
     const dateString = `${date[0]}${getPaddedNumber(date[1])}${getPaddedNumber(date[2])}`;
-    const homeTLA = getTeamTLA(home_team);
+    const homeTLA = getTeamTLA(home_team, parseInt(date[0]), parseInt(date[1]));
 
     return new Promise((resolve, reject) => {
         httpGet(`https://www.basketball-reference.com/boxscores/${dateString}0${homeTLA}.html`)
         .then(response => {
-            // use cheerio to parse HTML
-            const $ = cheerio.load(response.data);
-
             const paceRegex = /pace\" \>([\.\d+]+)?/; // matches one or more digits, optionally followed by a dot and one or more digits
             const paceMatch = response.data.match(paceRegex)[0];
             const pace = parseFloat(paceMatch.substring(paceMatch.indexOf('>') + 1));
 
             resolve(pace);
+        })
+        .catch(error => {
+            reject(error);
         });
     });
 }
 
-function getBoxScoresForDate(date) {
+function fetchBoxScoresForDateInternal(date) {
     return new Promise((resolve, reject) => {
         httpGet(`https://www.basketball-reference.com/boxscores/?&year=${date.year}&month=${date.month}&day=${date.day}`)
         .then(response => {
@@ -252,7 +313,7 @@ function getFileString(box_scores) {
     return compactBoxScores;
 }
 
-function readBoxScores(file_path) {
+function readLines(file_path) {
     const boxScores = [];
     const lines = fs.readFileSync(file_path, 'utf-8').split('\n');
     lines.pop();
@@ -269,14 +330,14 @@ function writeToFile(file_path, box_scores) {
 }
 
 function updateBoxScore(file_path, index, box_score_transformation) {
-    const updatedBoxScores = readBoxScores(file_path);
+    const updatedBoxScores = readLines(file_path);
     updatedBoxScores[index] = box_score_transformation(updatedBoxScores[index]);
 
     writeToFile(file_path, updatedBoxScores);
 }
 
 function sortFileByGameDate(file_path) {
-    const sortedBoxScores = readBoxScores(file_path);
+    const sortedBoxScores = readLines(file_path);
 
     sortedBoxScores.sort((a, b) => {
         return new Date(a.gameDate).getTime() - new Date(b.gameDate).getTime();
@@ -288,6 +349,81 @@ function sortFileByGameDate(file_path) {
 
 function appendCompactBoxScores(box_scores, file_path) {
     fs.appendFileSync(file_path, getFileString(box_scores));
+}
+
+function getSeasonSummariesHelper(box_scores) {
+    const seasonSummaryByTeam = {};
+    function getOrCreateTeamSummary(teamName) {
+        let teamSummary = seasonSummaryByTeam[teamName];
+        if (!teamSummary) {
+            teamSummary = {
+                teamName: teamName,
+                totalGames: 0,
+                totalPointsScored: 0,
+                totalPointsAgainst: 0,
+                totalPossessions: 0,
+            };
+        }
+        seasonSummaryByTeam[teamName] = teamSummary;
+        return teamSummary;
+    }
+
+    box_scores.forEach(box_score => {
+        const roadTeamSummary = getOrCreateTeamSummary(box_score.roadTeam);
+        const homeTeamSummary = getOrCreateTeamSummary(box_score.homeTeam);
+
+        ++roadTeamSummary.totalGames;
+        roadTeamSummary.totalPointsScored += box_score.roadTeamTotal;
+        roadTeamSummary.totalPointsAgainst += box_score.homeTeamTotal;
+
+        ++homeTeamSummary.totalGames;
+        homeTeamSummary.totalPointsScored += box_score.homeTeamTotal;
+        homeTeamSummary.totalPointsAgainst += box_score.roadTeamTotal;
+    });
+
+    const seasonSummaries = [];
+    Object.keys(seasonSummaryByTeam).forEach(key => {
+        const summary = seasonSummaryByTeam[key];
+        seasonSummaries.push(summary);
+    });
+
+    return seasonSummaries;
+}
+
+function sortAndRank(data, field) {
+    data.sort((a, b) => {
+        return b[field] - a[field];
+    });
+    data.forEach((d, index) => {
+        d[`${field}Rank`] = index + 1;
+    });
+}
+
+function getSeasonSummaries(season_start_year) {
+    const filePath = `data/season_averages/${season_start_year}_${season_start_year+1}.txt`;
+    const seasonAverages = readLines(filePath);
+
+    const seasonSummaries = getSeasonSummariesHelper(getSeasonScores(season_start_year));
+    seasonSummaries.forEach(summary => {
+        summary.pointsScoredPerGame = summary.totalPointsScored / summary.totalGames;
+        summary.pointsAgainstPerGame = summary.totalPointsAgainst / summary.totalGames;
+
+        seasonAverages.forEach(sa => {
+            if (sa.teamName === summary.teamName) {
+                summary.offensiveEfficiency = sa.offensiveEfficiency;
+                summary.defensiveEfficiency = sa.defensiveEfficiency;
+                summary.pace = sa.pace;
+            }
+        });
+    });
+
+    sortAndRank(seasonSummaries, 'offensiveEfficiency');
+    sortAndRank(seasonSummaries, 'defensiveEfficiency');
+    sortAndRank(seasonSummaries, 'pace');
+    sortAndRank(seasonSummaries, 'pointsScoredPerGame');
+    sortAndRank(seasonSummaries, 'pointsAgainstPerGame');
+
+    return seasonSummaries;
 }
 
 function decorateBoxScore(box_score) {
@@ -324,10 +460,10 @@ function doAfterSeconds(seconds, callback) {
     }, 1000 * seconds);
 }
 
-function getBoxScoresForDatesHelper(current_game_date, num_additional_days, daily_scores, resolve, reject, file_path, box_score_transformation) {
-    getBoxScoresForDate(current_game_date)
+function fetchBoxScoresForDatesHelper(current_game_date, num_additional_days, daily_scores, resolve, reject, file_path, box_score_transformation) {
+    fetchBoxScoresForDateInternal(current_game_date)
     .then(boxScores => {
-        console.log(`Fetched ${boxScores.length} games played on ${current_game_date.month}-${current_game_date.day}, ${num_additional_days} days left to query`);
+        console.log(`Fetched ${boxScores.length} games played on ${current_game_date.month}-${current_game_date.day}, ${num_additional_days} days left to query (${num_additional_days/20} mins)`);
 
         if (boxScores.length > 0) {
             boxScores.forEach(bs => {
@@ -349,8 +485,8 @@ function getBoxScoresForDatesHelper(current_game_date, num_additional_days, dail
             resolve(daily_scores);
         } else {
             const prev_game_date = previousDay(current_game_date);
-            doAfterSeconds(20, () => {
-                getBoxScoresForDatesHelper(prev_game_date, num_additional_days - 1, daily_scores, resolve, reject, file_path, box_score_transformation);
+            doAfterSeconds(3, () => {
+                fetchBoxScoresForDatesHelper(prev_game_date, num_additional_days - 1, daily_scores, resolve, reject, file_path, box_score_transformation);
             });
         }
     })
@@ -359,14 +495,14 @@ function getBoxScoresForDatesHelper(current_game_date, num_additional_days, dail
     });
 }
 
-function getBoxScoresForDates(last_game_date, num_additional_days, file_path, box_score_transformation) {
+function fetchBoxScoresForDates(last_game_date, num_additional_days, file_path, box_score_transformation) {
     return new Promise((resolve, reject) => {
-        getBoxScoresForDatesHelper(last_game_date, num_additional_days, [], resolve, reject, file_path, box_score_transformation);
+        fetchBoxScoresForDatesHelper(last_game_date, num_additional_days, [], resolve, reject, file_path, box_score_transformation);
     });
 }
 
-function getBoxScores(date) {
-    return getBoxScoresForDates(date, 0);
+function fetchBoxScores(date) {
+    return fetchBoxScoresForDates(date, 0);
 }
 
 function getSeasonScores(season_start_year, box_score_filter) {
@@ -380,7 +516,7 @@ function getSeasonScores(season_start_year, box_score_filter) {
     }
 
     const filePath = `data/box_scores/${season.startYear}_${season.endYear}.txt`;
-    const boxScores = readBoxScores(filePath);
+    const boxScores = readLines(filePath);
 
     const decoratedBoxScores = [];
     boxScores.forEach(boxScore => {
@@ -408,13 +544,22 @@ function getSeasonScoresSimple(season_start_year, teams_to_include) {
 }
 
 const bref = {}; // bref == basketball reference :)
-bref.getBoxScores = getBoxScores;
-bref.getBoxScoresForDates = getBoxScoresForDates;
-bref.appendCompactBoxScores = appendCompactBoxScores;
+
+// the goods in local files
+bref.getSeasonSummaries = getSeasonSummaries;
 bref.getSeasonScores = getSeasonScores;
 bref.getSeasonScoresSimple = getSeasonScoresSimple;
+bref.getTeamTLA = getTeamTLA;
+
+// network request
+bref.fetchBoxScores = fetchBoxScores;
+bref.fetchBoxScoresForDates = fetchBoxScoresForDates;
+bref.fetchSeasonSummary = fetchSeasonSummary;
+bref.fetchAdvancedStats = fetchAdvancedStats;
+
+// local file ops
+bref.appendCompactBoxScores = appendCompactBoxScores;
 bref.sortFileByGameDate = sortFileByGameDate;
 bref.updateBoxScore = updateBoxScore;
-bref.getAdvancedStats = getAdvancedStats;
 
 module.exports = bref // npm link, npm link @sahirb/basketball-reference

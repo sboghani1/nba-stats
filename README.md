@@ -10,19 +10,88 @@ Local copy of data with functions to access - with these building blocks the pos
 🎶 Easily combine stats across seasons to find true historical outliers (both 🏆 && 🤮)
 
 Current Data:
-- Box Scores
-  - Points per quarter (for season off/def point average & ranking)
-    - 2006-2023 (17 seasons)
+Game scores with season averages `[2003-2023 (20 seasons)]`
 
-  - Possessions per game (for season off/def efficiency rating & ranking)
-    - 2022-2023
+- Points scored in each quarter
+- Team rank per season
+  - Points per game
+  - Pace
+  - Offensive/defensive efficiency
 
 Possible Future Data:
+- Betting lines
 - More seasons
 - Advanced team/game stats (fouls, fg/ft/3fg attempts, etc.)
 - Player Stats
 
 If you have a request, check the previous README version for instructions on how to get priority 😆
+
+If we want the top 3 offenses from the last 5 years:
+```javascript
+// offensiveEfficiencyRank: 3, pointsRank: 11
+// guess which eastern conference team isn't good, just slow!?
+// hint: 'the mecca of basketball' but not for the home team lol
+
+[2022, 2021, 2020, 2019, 2018].forEach(year => {
+
+    const sortedTop3 = bref.getSeasonSummaries(year)
+    .filter(summary => {
+        return summary.offensiveEfficiencyRank <= 3;
+    }).map(summary => {
+        return {
+            teamName: summary.teamName,
+            offensiveEfficiencyRank: summary.offensiveEfficiencyRank,
+            pointsRank: summary.pointsScoredPerGameRank,
+            offensiveEfficiency: summary.offensiveEfficiency,
+            points: summary.pointsScoredPerGame,
+            pace: summary.pace
+        }
+    }).sort((a, b) => {
+        return a.offRank - b.offRank;
+    });
+
+    console.log(year);
+    console.log(sortedTop3);
+});
+
+// -- result --
+2022
+[
+  {
+    teamName: 'Sacramento',
+    offensiveEfficiencyRank: 1,
+    pointsRank: 1,
+    offensiveEfficiency: 119.4,
+    points: 120.70731707317073,
+    pace: 100.3
+  },
+  {
+    teamName: 'New York',
+    offensiveEfficiencyRank: 3,
+    pointsRank: 11,
+    offensiveEfficiency: 117.8,
+    points: 116.02439024390245,
+    pace: 97.1
+  },
+  {
+    teamName: 'Boston',
+    offensiveEfficiencyRank: 2,
+    pointsRank: 4,
+    offensiveEfficiency: 118,
+    points: 117.9390243902439,
+    pace: 98.5
+  }
+]
+2021
+[
+  {
+    teamName: 'Atlanta',
+    offensiveEfficiencyRank: 2,
+    ...
+  }
+]
+...
+```
 
 If we want the game total & q2 difference for 2022 Lakers road losses (sorted by game total):
 ```javascript

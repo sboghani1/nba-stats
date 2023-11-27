@@ -1,3 +1,4 @@
+const fs = require('fs');
 const bref = require('@sahirb/nba-stats')
 
 /*
@@ -20,50 +21,14 @@ const num_additional_days = 4;
 const backfillSeasons = [
     {
         start: {
-            year: 2009,
-            month: 10,
-            day: 27
-        },
-        end: {
-            year: 2010,
-            month: 4,
-            day: 14
-        }
-    },
-    {
-        start: {
-            year: 2008,
+            year: 2003,
             month: 10,
             day: 28
         },
         end: {
-            year: 2009,
+            year: 2004,
             month: 4,
-            day: 16
-        }
-    },
-    {
-        start: {
-            year: 2007,
-            month: 10,
-            day: 30
-        },
-        end: {
-            year: 2008,
-            month: 4,
-            day: 16
-        }
-    },
-    {
-        start: {
-            year: 2006,
-            month: 10,
-            day: 31
-        },
-        end: {
-            year: 2007,
-            month: 4,
-            day: 18
+            day: 14
         }
     },
     // {
@@ -104,42 +69,163 @@ const backfillSeasons = [
     // }
 ]
 
-const sortedLakers = bref.getSeasonScores(2022)
-.filter(boxScore => {
-    return boxScore.roadTeam === 'LA Lakers' && boxScore.winningTeam !== 'LA Lakers';
-}).sort((boxScoreA, boxScoreB) => {
-    return boxScoreA.roadTeamTotal - boxScoreB.roadTeamTotal;
-}).map(boxScore => {
-    return {
-        date: boxScore.gameDate,
-        total: boxScore.roadTeamTotal,
-        diff: boxScore.roadTeamTotal - boxScore.homeTeamTotal,
-        numPossessions: boxScore.numPossessions,
-        q2Diff: boxScore.periodBreakdown[1].roadTotal - boxScore.periodBreakdown[1].homeTotal,
+// const sortedLakers = bref.getSeasonScores(2022)
+// .filter(boxScore => {
+//     return boxScore.roadTeam === 'LA Lakers' && boxScore.winningTeam !== 'LA Lakers';
+// }).sort((boxScoreA, boxScoreB) => {
+//     return boxScoreA.roadTeamTotal - boxScoreB.roadTeamTotal;
+// }).map(boxScore => {
+//     return {
+//         date: boxScore.gameDate,
+//         total: boxScore.roadTeamTotal,
+//         diff: boxScore.roadTeamTotal - boxScore.homeTeamTotal,
+//         numPossessions: boxScore.numPossessions,
+//         q2Diff: boxScore.periodBreakdown[1].roadTotal - boxScore.periodBreakdown[1].homeTotal,
+//     }
+// });
+
+// console.log(sortedLakers);
+
+// const years = [2022, 2021, 2020, 2019, 2018];
+// years.forEach(year => {
+//     const top5Off = bref.getEfficiencyDataByTeam(year)
+//     .filter(summary => {
+//         return summary.offEfficiencyRank <= 5;
+//     })
+//     .map(summary => {
+//         return {
+//             teamName: summary.teamName,
+//             offRank: summary.offEfficiencyRank,
+//             off: summary.offEfficiency,
+//             points: summary.totalPointsScored,
+//             averagePace: summary.averagePace
+//         };
+//     })
+//     .sort((a, b) => {
+//         return a.offRank - b.offRank;
+//     });
+//     console.log(year);
+//     console.log(top5Off);
+// });
+
+const teams = ['Atlanta', 'Boston', 'Brooklyn', 'Charlotte', 'Chicago', 'Cleveland', 'Dallas', 'Denver', 'Detroit', 'Golden State', 'Houston',
+'Indiana', 'LA Clippers', 'LA Lakers', 'Memphis', 'Miami', 'Milwaukee', 'Minnesota', 'New Orleans', 'New Jersey', 'New York', 'Oklahoma City', 'Orlando', 'Philadelphia', 'Phoenix', 'Portland',
+'Sacramento', 'San Antonio', 'Seattle', 'Toronto', 'Utah', 'Washington'];
+// const teams = ['New Orleans']
+
+let doubleError = false;
+let seasonTeamCount = 0;
+
+function workEff(seasonStart, teamsIndex) {
+    doubleError = false;
+
+    if (teamsIndex >= teams.length) {
+        if (seasonTeamCount !== 30) {
+            console.log('not enough teams for this season!!!');
+            return;
+        }
+
+        seasonTeamCount = 0;
+        console.log('new season ' + (seasonStart-1));
+        workEff(seasonStart - 1, 0);
+        return;
     }
+
+    const team = teams[teamsIndex];
+    const teamTLA = bref.getTeamTLA(team, seasonStart, 12);
+
+    // console.log(` fetchSeasonSummary ${team} ${seasonStart} ${teamsIndex}`);
+    bref.fetchSeasonSummary(teamTLA, seasonStart).then(result => {
+        ++seasonTeamCount;
+        // console.log(result);
+
+        // let boxScores = bref.getSeasonScores(seasonStart);
+
+        const filePath = `./data/season_averages/${seasonStart}_${seasonStart+1}.txt`;
+
+        fs.appendFileSync(filePath, JSON.stringify({
+            teamName: team,
+            teamTLA: teamTLA,
+            offensiveEfficiency: result.offRating,
+            defensiveEfficiency: result.defRating,
+            pace: result.pace,
+        }) + '\n');
+
+        // console.log(`${team} ${seasonStart} next team in 3s ${result.pace}`);
+        setTimeout(() => {
+            workEff(seasonStart, teamsIndex + 1);
+        }, 3000);
+
+        // boxScores.forEach((boxScore, index) => {
+        //     if (boxScore.roadTeam === team) {
+
+        //         bref.updateBoxScore(filePath, index, (boxScoreLine) => {
+        //             boxScoreLine.roadTeamSeasonOffEff = result.offRating;
+        //         });
+        //     }
+        // });
+
+        // bref.updateBoxScore(filePath, index, (boxScoreLine) => {
+            // ++numInsignificant;
+            // boxScoreLine.numPossessions = pace;
+
+            // if (boxScoreLine.periodBreakdown[0].roadTotal > max || boxScoreLine.periodBreakdown[0].roadTotal < min) {
+            //     console.log(numInsignificant + ' later q1 ----- ' + min + '-' + max);
+            //     numInsignificant = 0;
+
+            //     if (boxScoreLine.periodBreakdown[0].roadTotal > max) {
+            //         max = boxScoreLine.periodBreakdown[0].roadTotal;
+            //     }
+            //     if (boxScoreLine.periodBreakdown[0].roadTotal < min) {
+            //         min = boxScoreLine.periodBreakdown[0].roadTotal;
+            //     }
+
+            //     console.log('new q1 --------- ' + min + '-' + max);
+            // }
+
+        //     return boxScoreLine;
+        // });
+    }).catch(error => {
+        // console.log(error);
+
+        if (!doubleError) {
+            doubleError = true;
+            workEff(seasonStart, teamsIndex + 1);
+        }
+    });
+}
+
+// workEff(2012, 0);
+
+[2022, 2021, 2020, 2019, 2018].forEach(year => {
+
+    const sortedTop3 = bref.getSeasonSummaries(year)
+    .filter(summary => {
+        return summary.offensiveEfficiencyRank <= 3;
+    }).map(summary => {
+        return {
+            teamName: summary.teamName,
+            offensiveEfficiencyRank: summary.offensiveEfficiencyRank,
+            pointsRank: summary.pointsScoredPerGameRank,
+            offensiveEfficiency: summary.offensiveEfficiency,
+            points: summary.pointsScoredPerGame,
+            pace: summary.pace
+        }
+    }).sort((a, b) => {
+        return a.offRank - b.offRank;
+    });
+
+    console.log('--------------------------------------------------------------------');
+    console.log(year);
+    console.log(sortedTop3);
 });
 
-console.log(sortedLakers);
+// const summaries = bref.getSeasonSummaries(2022).sort((a, b) => {
+//     return a.offensiveEfficiencyRank - b.offensiveEfficiencyRank;
+// });
+// console.log(summaries);
 
-
-
-const local_file_path_tempalte = "/Users/boghani/ns2/data/box_scores/";
-const local_file_path = "/Users/boghani/basketball-reference-js-box-score/data/box_scores/2019_2020.txt";
-
-const box_score_transformation = (boxScore) => {
-    let feeling = 'snooze fest';
-
-    if (boxScore.gameTotal > 220) {
-        feeling = 'wow points and stuff';
-
-        if (boxScore.winningTeamScore - boxScore.losingTeamScore < 10) {
-            feeling = 'be still my heart <4';
-        }
-    }
-
-    boxScore.feeling = feeling;
-};
-
+const local_file_path_tempalte = "./data/box_scores/";
 // bref.sortFileByGameDate(local_file_path);
 
 const len = backfillSeasons.length;
@@ -159,7 +245,7 @@ function backfill(index) {
 
     console.log(`Fetching ${num_additional_days_to_fetch} days from ${start.toLocaleString()} to ${end.toDateString()}`);
 
-    bref.getBoxScoresForDates(backfillSeason.end, num_additional_days_to_fetch, null, null)
+    bref.fetchBoxScoresForDates(backfillSeason.end, num_additional_days_to_fetch, null, null)
     .then(boxScores => {
         boxScores.sort((a, b) => {
             return new Date(a.gameDate).getTime() - new Date(b.gameDate).getTime();
@@ -170,43 +256,80 @@ function backfill(index) {
         backfill(index + 1);
     });
 }
+// backfill(0);
 
 const season = {
     seasonStart: 2009,
     seasonEnd: 2010
 }
 
-const seasonStart = 2022;
-const boxScores = bref.getSeasonScores(seasonStart);
-const limit = boxScores.length;
+let seasonStart = 2015;
+let boxScores = bref.getSeasonScores(seasonStart);
+let limit = boxScores.length;
+
+let min = 500;
+let max = 1;
+let numInsignificant = 0;
 
 function work(index) {
     if (index >= limit) {
+        console.log('done, time for ' + (seasonStart-1));
+
+        if (seasonStart <= 2008) {
+            return;
+        }
+
+        seasonStart--;
+        boxScores = bref.getSeasonScores(seasonStart);
+        limit = boxScores.length;
+        max = 500;
+        max = 1;
+        numInsignificant = 0;
+        console.log('working on ' + seasonStart + ' with ' + limit + ' games');
+        work(0);
         return;
     }
 
     const boxScore = boxScores[index];
+    // console.log('working on ' + index);
+    // console.log(boxScore)
     const filePath = `./data/box_scores/${seasonStart}_${seasonStart+1}.txt`;
 
     if (!boxScore.numPossessions) {
-        bref.getAdvancedStats(boxScore.homeTeam, boxScore.gameDate)
+        bref.fetchAdvancedStats(boxScore.homeTeam, boxScore.gameDate)
         .then(pace => {
             console.log('got pace ' + pace);
 
             bref.updateBoxScore(filePath, index, (boxScoreLine) => {
+                ++numInsignificant;
                 boxScoreLine.numPossessions = pace;
+
+                if (boxScoreLine.periodBreakdown[0].roadTotal > max || boxScoreLine.periodBreakdown[0].roadTotal < min) {
+                    console.log(numInsignificant + ' later q1 ----- ' + min + '-' + max);
+                    numInsignificant = 0;
+
+                    if (boxScoreLine.periodBreakdown[0].roadTotal > max) {
+                        max = boxScoreLine.periodBreakdown[0].roadTotal;
+                    }
+                    if (boxScoreLine.periodBreakdown[0].roadTotal < min) {
+                        min = boxScoreLine.periodBreakdown[0].roadTotal;
+                    }
+
+                    console.log('new q1 --------- ' + min + '-' + max);
+                }
+
                 return boxScoreLine;
-            })
+            });
 
-            const progress = Math.round(index / limit * 1000);
+            const originalLen = 3*limit/60;
 
-            console.log('going to work again after 3s (' + (limit - index) + ' remaining aka ' + (3*(limit-index)/60) + ' minutos)');
+            console.log('going to work again after 3s - ' + (limit - index) + ' remaining aka ' + (3*(limit-index)/60) + ' minutos remaining, original ' + originalLen);
             setTimeout(() => {
                 work(index+1);
             }, 3000);
         });
     } else {
-        console.log('skiping ' + index + ' already have ' + boxScore.numPossessions);
+        // console.log('skiping ' + index + ' already have ' + boxScore.numPossessions);
         work(index+1);
     }
 }
