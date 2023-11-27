@@ -1,22 +1,34 @@
+[![npm](https://img.shields.io/npm/v/@sahirb/nba-stats?style=for-the-badge)](https://www.npmjs.com/package/@sahirb/nba-stats)
+
 Making NBA data more accessible for fellow fanatics! 🏀 🤗
 
-# i. NBA Data 🧬 🧱
-Local copy of data with functions to access - with these building blocks the possibilities are endless! 😬
+## **Installation**
 
+```bash
+npm install @sahirb/nba-stats
+```
+
+## **What can I use it for?**
 🚦 No more getting rate limited by web apis
 
 💰 Evaluate mid-game scenarios based on "similar" teams in past games/seasons as defined by you
 
 🎶 Easily combine stats across seasons to find true historical outliers (both 🏆 && 🤮)
 
-Current Data:
-Game scores with season averages `[2003-2023 (20 seasons)]`
 
-- Points scored in each quarter
-- Team rank per season
-  - Points per game
-  - Pace
-  - Offensive/defensive efficiency
+## **NBA Data 🧬 🧱**
+Local copy of data with functions to access - with these building blocks the possibilities are endless! 😬
+
+
+| Stat | Season | Notes |
+| --- | --- | --- |
+| Points per quarter | <code>[2003-2023 (20 seasons)]</code> | basketball-reference.com/boxscores
+| Possessions per game | | basketball-reference.com/teams
+| Offensive/defensive efficiency | | basketball-reference.com/boxscores
+| Points per game | | derived from points per quarter
+| Points per possession | | derived
+
+... and some others you'd reasonably expect 🥳
 
 Possible Future Data:
 - Betting lines
@@ -34,9 +46,9 @@ If we want the top 3 offenses from the last 5 years:
 
 [2022, 2021, 2020, 2019, 2018].forEach(year => {
 
-    const sortedTop3 = bref.getSeasonSummaries(year)
+    const sortedTop5 = bref.getSeasonSummaries(year)
     .filter(summary => {
-        return summary.offensiveEfficiencyRank <= 3;
+        return summary.offensiveEfficiencyRank <= 5;
     }).map(summary => {
         return {
             teamName: summary.teamName,
@@ -66,20 +78,20 @@ If we want the top 3 offenses from the last 5 years:
     pace: 100.3
   },
   {
-    teamName: 'New York',
-    offensiveEfficiencyRank: 3,
-    pointsRank: 11,
-    offensiveEfficiency: 117.8,
-    points: 116.02439024390245,
-    pace: 97.1
-  },
-  {
     teamName: 'Boston',
     offensiveEfficiencyRank: 2,
     pointsRank: 4,
     offensiveEfficiency: 118,
     points: 117.9390243902439,
     pace: 98.5
+  },
+  {
+    teamName: 'New York',
+    offensiveEfficiencyRank: 3,
+    pointsRank: 11,
+    offensiveEfficiency: 117.8,
+    points: 116.02439024390245,
+    pace: 97.1
   }
 ]
 2021
@@ -193,7 +205,7 @@ season_start_year: number
 teams_to_include?: string[] // exclude to get all teams
 ```
 
-# ii. Parse basketball-reference.com
+## **Parse basketball-reference.com**
 Parse basketball-reference.com for NBA data! 🏀 🧬
 
 This was used to create the NBA Data! 🙏🏽

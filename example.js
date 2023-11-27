@@ -201,7 +201,7 @@ function workEff(seasonStart, teamsIndex) {
 
     const sortedTop3 = bref.getSeasonSummaries(year)
     .filter(summary => {
-        return summary.offensiveEfficiencyRank <= 3;
+        return summary.offensiveEfficiencyRank <= 5;
     }).map(summary => {
         return {
             teamName: summary.teamName,
@@ -212,7 +212,7 @@ function workEff(seasonStart, teamsIndex) {
             pace: summary.pace
         }
     }).sort((a, b) => {
-        return a.offRank - b.offRank;
+        return a.offensiveEfficiencyRank - b.offensiveEfficiencyRank;
     });
 
     console.log('--------------------------------------------------------------------');

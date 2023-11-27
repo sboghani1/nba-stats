@@ -1,6 +1,6 @@
 {
   "name": "@sahirb/nba-stats",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "NBA data and Javascript APIs to access stats. Also the util APIs that were used to build the stats files.",
   "main": "index.js",
   "scripts": {
